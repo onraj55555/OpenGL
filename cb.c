@@ -15,9 +15,13 @@ void build() {
     command_add_dynamic_library(cmd, "glfw");
     command_add_dynamic_library(cmd, "GL");
     command_add_dynamic_library(cmd, "m");
+    command_append(cmd, "-fmax-include-depth=300");
     command_set_output_file(cmd, "build/main");
     command_execute(cmd);
-    command_has_exited_normally(cmd);
+    if(command_get_exit_code(cmd) != 0) {
+        printf("Cannot be compiled, probably forgot to pull in the external dependencies!\n");
+        command_has_exited_normally(cmd);
+    }
     command_deinit(cmd);
 }
 
@@ -31,6 +35,7 @@ void run() {
 int main(int argc, char ** argv) {
     cb_rebuild_on_change(__FILE__, argv);
     parse_arguments(argc, argv);
+    build();
     char * argument = argv[1];
     if(strcmp(argument, "run") == 0) run();
     return 0;
